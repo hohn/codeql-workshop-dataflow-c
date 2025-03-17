@@ -1,0 +1,24 @@
+* Some low-level codeql
+  #+BEGIN_SRC sh 
+    # Produce ast in dot format
+    codeql database analyze \
+           --format=dot --output=ast.dot \
+           -- cpp-dataflow-part1-database solutions/ast.ql
+
+    # Convert dot to pdf
+    dot -Tpdf < ast.dot/cpp/print-ast.dot > ast.dot/cpp/print-ast.pdf
+
+    # View the graph
+    open ast.dot/cpp/print-ast.pdf
+
+
+    # This comes from
+    unzip -v cpp-dataflow-part1-database/src.zip
+    # Archive:  cpp-dataflow-part1-database/src.zip
+    #  Length   Method    Size  Cmpr    Date    Time   CRC-32   Name
+    # --------  ------  ------- ---- ---------- ----- --------  ----
+    #     3280  Defl:N      880  73% 03-17-2025 08:59 8057b2ea  Users/hohn/local/codeql-workshop-dataflow-c/tests-common/test_part1.c
+    # --------          -------  ---                            -------
+    #     3280              880  73%                            1 file
+  #+END_SRC
+
