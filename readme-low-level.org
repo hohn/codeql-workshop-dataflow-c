@@ -1,4 +1,14 @@
+#+HTML_HEAD_EXTRA: <style> .scrollable-svg { max-height: 800px; overflow-y: auto; display: block; } </style>
+
 * CodeQL AST in dot and pdf
+  The control flow graph is narrowed to the function of interest,
+  #+BEGIN_SRC c++
+    int copy_mem(unsigned int unused, dyn_input_t *input,
+                 unsigned int input_types) {...}
+
+  #+END_SRC
+  from [[./tests-common/test_part1.c]], so we do the same for the AST.
+
   #+BEGIN_SRC sh 
     # Produce ast in dot format
     codeql database analyze                             \
@@ -11,17 +21,17 @@
 
     # Convert dot to pdf
     dot -Tpdf < ast.dot/cpp/print-ast.dot > ast.dot/cpp/print-ast.pdf
+    dot -Tsvg < ast.dot/cpp/print-ast.dot > ast.dot/cpp/print-ast.svg
 
     # View the graph
     open ast.dot/cpp/print-ast.pdf
-
 
     # This comes from
     tests-common/test_part1.c
   #+END_SRC
 
 * CodeQL CFG in dot and pdf
-  XX: The whole control flow graph is very large, so the query narrows it to the
+  The whole control flow graph is very large, so the query narrows it to the
   function of interest,
   #+BEGIN_SRC c++
     int copy_mem(unsigned int unused, dyn_input_t *input,
@@ -43,8 +53,53 @@
 
     # Convert dot to pdf
     dot -Tpdf < cfg.dot/cpp/print-cfg.dot > cfg.dot/cpp/print-cfg.pdf
+    dot -Tsvg < cfg.dot/cpp/print-cfg.dot > cfg.dot/cpp/print-cfg.svg
 
     # View the graph
     open cfg.dot/cpp/print-cfg.pdf
   #+END_SRC
 
+* Original source code
+  #+BEGIN_SRC c++
+    int copy_mem(unsigned int unused, dyn_input_t *input,
+                 unsigned int input_types) {
+      memcpy(input[0].ptr.buf, input[1].ptr.buf,
+             input[1].ptr.size); // NON_COMPLIANT - type not checked
+      copy_mem_nested(input);    // NON_COMPLIANT - type not checked
+
+      if (input_types != DYN_INPUT_TYPE(DYN_INPUT_TYPE_MEM, DYN_INPUT_TYPE_MEM)) {
+      }
+
+      memcpy(input[0].ptr.buf, input[1].ptr.buf,
+             input[1].ptr.size); // NON_COMPLIANT - guard doesn't control all paths
+      copy_mem_nested(input);    // NON_COMPLIANT - guard doesn't control all paths
+
+      if (DYN_INPUT_TYPE(DYN_INPUT_TYPE_MEM, DYN_INPUT_TYPE_MEM) == 100) {
+        memcpy(input[0].ptr.buf, input[1].ptr.buf,
+               input[1].ptr.size); // NON_COMPLIANT - useless type check
+      }
+
+      if (input_types != DYN_INPUT_TYPE(DYN_INPUT_TYPE_MEM, DYN_INPUT_TYPE_MEM)) {
+        return 1;
+      }
+
+      memcpy(input[0].ptr.buf, input[1].ptr.buf,
+             input[1].ptr.size); // COMPLIANT - type checked
+      copy_mem_nested(input);    // COMPLIANT - type checked
+
+      return 0;
+    }
+  #+END_SRC
+* AST
+  The ast is inlined here.  For better viewing, open the
+  pdf ([[./ast.dot/cpp/print-ast.pdf]]) separately.
+  #+ATTR_HTML: :width 100%
+  [[./ast.dot/cpp/print-ast.svg]]
+
+* CFG
+  The cfg is inlined here.  For better viewing, open the
+  pdf ([[./cfg.dot/cpp/print-cfg.pdf]]) separately.
+
+  #+ATTR_HTML: :class scrollable-svg
+  [[./cfg.dot/cpp/print-cfg.svg]]
+    
