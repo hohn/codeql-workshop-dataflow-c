@@ -1,4 +1,4 @@
-* Some low-level codeql
+* CodeQL AST in dot and pdf
   #+BEGIN_SRC sh 
     # Produce ast in dot format
     codeql database analyze \
@@ -20,5 +20,33 @@
     #     3280  Defl:N      880  73% 03-17-2025 08:59 8057b2ea  Users/hohn/local/codeql-workshop-dataflow-c/tests-common/test_part1.c
     # --------          -------  ---                            -------
     #     3280              880  73%                            1 file
+  #+END_SRC
+
+* CodeQL CFG in dot and pdf
+  XX: The whole control flow graph is very large, so the query narrows it to the
+  function of interest,
+  #+BEGIN_SRC c++
+    int copy_mem(unsigned int unused, dyn_input_t *input,
+                 unsigned int input_types) {...}
+
+  #+END_SRC
+  from [[./tests-common/test_part1.c]]
+
+  #+BEGIN_SRC sh 
+    # Produce CFG in dot format
+    codeql database analyze                             \
+           --format=dot --output=cfg.dot                \
+           -j8 -v --ram=16000                           \
+           --rerun                                      \
+           --                                           \
+           cpp-dataflow-part1-database                  \
+           graphs/cfg.ql                            
+
+
+    # Convert dot to pdf
+    dot -Tpdf < cfg.dot/cpp/print-cfg.dot > cfg.dot/cpp/print-cfg.pdf
+
+    # View the graph
+    open cfg.dot/cpp/print-cfg.pdf
   #+END_SRC
 
