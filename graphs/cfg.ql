@@ -7,44 +7,9 @@
 
 // The CFG is large.  Just show the part for
 //  int copy_mem(unsigned int unused, dyn_input_t *input,
-//     unsigned int input_types) 
+//      unsigned int input_types) 
 
 import cpp
-
-predicate allSuccessors3(int distance, ControlFlowNode n1, ControlFlowNode n2) {
-  // n1.getASuccessor*() = n2 and
-  distance = 0 and n1 = n2
-  or
-  distance = 1 and n1 = n2.getAPredecessor()
-  or
-  distance = 2 and n1 = n2.getAPredecessor().getAPredecessor()
-  or
-  // allSuccessors3(distance-1, n2.getAPredecessor(), n2)
-  // or
-  exists(ControlFlowNode mid |
-    // // n1 -> mid
-    // n1 = mid.getAPredecessor() and
-    // // mid -> n2
-    // allSuccessors3(distance-1, mid, n2)
-    // --- right-to-left recursion
-    // n1 -> mid
-    distance < 12 and
-    allSuccessors3(distance - 1, n1, mid) and
-    // mid -> n2
-    mid = n2.getAPredecessor()
-  )
-}
-
-predicate allSuccessors1(ControlFlowNode n1, ControlFlowNode n2) {
-  // n1.getASuccessor*() = n2 and
-  n1 = n2
-  or
-  // n2 =  n1.getASuccessor()
-  exists(ControlFlowNode mid |
-    allSuccessors1(n1, mid) and
-    n2 = mid.getASuccessor()
-  )
-}
 
 query predicate nodes(ControlFlowNode n1, string key, string value) {
   exists(ControlFlowNode startFrom |
@@ -63,13 +28,6 @@ query predicate nodes(ControlFlowNode n1, string key, string value) {
     )
   )
 }
-
-// query predicate edgesDist(ControlFlowNode n1, ControlFlowNode n2, int distance) {
-//     distance = 12 and
-//     // allSuccessors3(distance, n1, n2) and
-//     n1.(Function).hasName("copy_mem") and
-//     n2 = n1.getASuccessor+()
-// }
 
 query predicate edges(ControlFlowNode n1, ControlFlowNode n2) { 
     exists(ControlFlowNode t1, ControlFlowNode t2 |
