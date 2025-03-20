@@ -59,37 +59,6 @@
     open cfg.dot/cpp/print-cfg.pdf
   #+END_SRC
 
-* Original source code
-  #+BEGIN_SRC c++
-    int copy_mem(unsigned int unused, dyn_input_t *input,
-                 unsigned int input_types) {
-      memcpy(input[0].ptr.buf, input[1].ptr.buf,
-             input[1].ptr.size); // NON_COMPLIANT - type not checked
-      copy_mem_nested(input);    // NON_COMPLIANT - type not checked
-
-      if (input_types != DYN_INPUT_TYPE(DYN_INPUT_TYPE_MEM, DYN_INPUT_TYPE_MEM)) {
-      }
-
-      memcpy(input[0].ptr.buf, input[1].ptr.buf,
-             input[1].ptr.size); // NON_COMPLIANT - guard doesn't control all paths
-      copy_mem_nested(input);    // NON_COMPLIANT - guard doesn't control all paths
-
-      if (DYN_INPUT_TYPE(DYN_INPUT_TYPE_MEM, DYN_INPUT_TYPE_MEM) == 100) {
-        memcpy(input[0].ptr.buf, input[1].ptr.buf,
-               input[1].ptr.size); // NON_COMPLIANT - useless type check
-      }
-
-      if (input_types != DYN_INPUT_TYPE(DYN_INPUT_TYPE_MEM, DYN_INPUT_TYPE_MEM)) {
-        return 1;
-      }
-
-      memcpy(input[0].ptr.buf, input[1].ptr.buf,
-             input[1].ptr.size); // COMPLIANT - type checked
-      copy_mem_nested(input);    // COMPLIANT - type checked
-
-      return 0;
-    }
-  #+END_SRC
 * AST
   The ast is inlined here.  For better viewing, open the
   pdf ([[./ast.dot/cpp/print-ast.pdf]]) separately.
@@ -102,4 +71,50 @@
 
   #+ATTR_HTML: :class scrollable-svg
   [[./cfg.dot/cpp/print-cfg.svg]]
-    
+
+* GPTs
+  A gpt was used to add 17 of the CFG edges to the AST tree; more resulted in a
+  very confusing graph.  The hybrid is in =cfg.dot/cpp/ast-cfg-hybrid.dot=
+
+* Render via dot
+  The hybrid is rendered via dot.  The other renderers produced very spread
+  layouts. 
+  #+BEGIN_SRC sh 
+    # Convert dot to pdf
+    twopi -Tpdf < cfg.dot/cpp/ast-cfg-hybrid.dot > cfg.dot/cpp/ast-cfg-hybrid.pdf
+    circo -Tpdf < cfg.dot/cpp/ast-cfg-hybrid.dot > cfg.dot/cpp/ast-cfg-hybrid.pdf
+    dot -Tpdf < cfg.dot/cpp/ast-cfg-hybrid.dot > cfg.dot/cpp/ast-cfg-hybrid.pdf
+    dot -Tsvg < cfg.dot/cpp/ast-cfg-hybrid.dot > cfg.dot/cpp/ast-cfg-hybrid.svg
+
+    # View the graph
+    open -a skim cfg.dot/cpp/ast-cfg-hybrid.pdf
+  #+END_SRC
+
+* AST-CFG HYBRID
+  The ast-cfg hybrid is inlined here.  For better viewing, open the
+  pdf ([[./cfg.dot/cpp/ast-cfg-hybrid.pdf]]) separately.
+  #+ATTR_HTML: :width 100%
+  [[./cfg.dot/cpp/ast-cfg-hybrid.svg]]
+
+* Hybrid portion of source code
+  The part of the source code corresponding to the hybrid portion, with space for
+  adding edges:
+  #+BEGIN_SRC c++
+    int    copy_mem(unsigned    int    unused,    dyn_input_t    *input,
+
+
+                 unsigned    int    input_types)    {
+
+
+        memcpy(input[0].ptr.buf,    input[1].ptr.buf,
+
+
+               input[1].ptr.size);  
+
+
+        copy_mem_nested(input);   
+
+        ...;
+    }
+  #+END_SRC
+
