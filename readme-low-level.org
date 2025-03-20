@@ -96,23 +96,55 @@
   #+ATTR_HTML: :width 100%
   [[./cfg.dot/cpp/ast-cfg-hybrid.svg]]
 
-* Hybrid portion of source code
-  The part of the source code corresponding to the hybrid portion, with space for
-  adding edges:
+* CFG with numbered nodes
+  The CFG with node numbering is inlined here.  For better viewing, open the
+  pdf ([[./cfg.dot/cpp/cfg-annotated.pdf]]) separately.
+  #+ATTR_HTML: :width 100%
+  [[./cfg.dot/cpp/cfg-annotated.svg]]
+  
+  As before, this graph is rendered via dot:
+  #+BEGIN_SRC sh 
+    dot -Tpdf < cfg.dot/cpp/cfg-annotated.dot > cfg.dot/cpp/cfg-annotated.pdf
+    dot -Tsvg < cfg.dot/cpp/cfg-annotated.dot > cfg.dot/cpp/cfg-annotated.svg
+
+    # View the graph
+    open -a skim cfg.dot/cpp/cfg-annotated.pdf
+
+  #+END_SRC
+
+
+* Source Annotated with CFG Nodes
+  The CFG entries
+  #+BEGIN_SRC text
+    0[label="ExprStmt (0)"; ];
+    1[label="call to memcpy (1)"; ];
+    2[label="input (2)"; ];
+    3[label="0 (3)"; ];
+    4[label="access to array (4)"; ];
+    5[label="ptr (5)"; ];
+    6[label="buf (6)"; ];
+    7[label="input (7)"; ];
+    8[label="1 (8)"; ];
+    9[label="access to array (9)"; ];
+    10[label="ptr (10)"; ];
+    11[label="buf (11)"; ];
+  #+END_SRC
+  are located in the source code as follows
   #+BEGIN_SRC c++
     int    copy_mem(unsigned    int    unused,    dyn_input_t    *input,
 
 
-                 unsigned    int    input_types)    {
+                    unsigned    int    input_types)    {
+                                                       0
+
+            memcpy(input[0].ptr.buf,    input[1].ptr.buf,
+            1      2     3              7     8
+                        4   5   6            9   10  11
+
+                   input[1].ptr.size);
 
 
-        memcpy(input[0].ptr.buf,    input[1].ptr.buf,
-
-
-               input[1].ptr.size);  
-
-
-        copy_mem_nested(input);   
+        copy_mem_nested(input);
 
         ...;
     }
