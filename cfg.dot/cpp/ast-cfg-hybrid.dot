@@ -1,5 +1,6 @@
 digraph {
   compound=true;
+  rankdir=LR;
   
   // Original AST nodes and edges
   0[label="[ExprStmt] ExprStmt"; ];
